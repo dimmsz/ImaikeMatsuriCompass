@@ -1,0 +1,10 @@
+{
+  "name": "今池まつり Compass",
+  "short_name": "今池まつり",
+  "lang": "ja",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f4f5f7",
+  "theme_color": "#111827",
+  "description": "2026 今池まつりの会場を探せる非公式PWA"
+}
