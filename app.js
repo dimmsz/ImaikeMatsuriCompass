@@ -1,3 +1,7 @@
+const SUPABASE_URL = 'https://ufypynzhmbrozbxbqxsq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lQvSmWOndjOMgL5sd5Xdsw_VZEv2k07';
+const EVENT_DATES = ['2026-09-20', '2026-09-21'];
+
 const venues = [
   { id: 1, name: '今池ガスホール', landmark: '今池ガスビル9F', lat: 35.16890, lng: 136.93650, note: '公式タイムテーブル会場' },
   { id: 2, name: 'ストリートコーナーパラダイス', landmark: '今池交差点・りそな銀行前', lat: 35.16972, lng: 136.93696, note: '公式タイムテーブル会場' },
@@ -10,6 +14,9 @@ const venues = [
   { id: 9, name: '4丁目Pit', landmark: '水野胃腸科P', lat: 35.16855, lng: 136.93815, note: '公式タイムテーブル会場' },
   { id: 10, name: '下町ネバーランド', landmark: 'スギヤマ調剤薬局駐車場近辺', lat: 35.16930, lng: 136.93700, note: '公式タイムテーブル会場' }
 ];
+
+let schedules = [];
+let schedulesLoaded = false;
 
 const mapBounds = { minLat: 35.1669, maxLat: 35.1708, minLng: 136.9334, maxLng: 136.9391 };
 const markerLayer = document.getElementById('markerLayer');
@@ -27,18 +34,63 @@ function project(lat, lng) {
 }
 
 function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 }
 
 function mapsUrl(venue) {
   return `https://www.google.com/maps/search/?api=1&query=${venue.lat},${venue.lng}`;
 }
 
+function formatDate(dateString) {
+  const date = new Date(`${dateString}T00:00:00Z`);
+  const day = ['日', '月', '火', '水', '木', '金', '土'][date.getUTCDay()];
+  return `${date.getUTCMonth() + 1}月${date.getUTCDate()}日（${day}）`;
+}
+
+function formatTime(value) {
+  if (!value) return '';
+  return String(value).slice(0, 5);
+}
+
+function venueSchedules(venueId) {
+  return schedules.filter(schedule => Number(schedule.venue_id) === venueId);
+}
+
+function renderScheduleDay(dateString, items) {
+  const dayItems = items
+    .filter(item => item.event_date === dateString)
+    .sort((a, b) => String(a.start_time).localeCompare(String(b.start_time)) || Number(a.sort_order || 0) - Number(b.sort_order || 0));
+
+  if (!dayItems.length) {
+    return `<section class="schedule-day"><h3>${formatDate(dateString)}</h3><p class="schedule-empty">予定はありません。</p></section>`;
+  }
+
+  return `
+    <section class="schedule-day">
+      <h3>${formatDate(dateString)}</h3>
+      <div class="schedule-items">
+        ${dayItems.map(item => `
+          <div class="schedule-item">
+            <time>${escapeHtml(formatTime(item.start_time))}</time>
+            <div class="schedule-title">${escapeHtml(item.title)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
 function showVenue(venue) {
+  const items = venueSchedules(venue.id);
+  const scheduleContent = schedulesLoaded
+    ? EVENT_DATES.map(date => renderScheduleDay(date, items)).join('')
+    : '<p class="schedule-loading">タイムスケジュールを読み込み中…</p>';
+
   dialogBody.innerHTML = `
     <h2>${escapeHtml(venue.name)}</h2>
-    <p><strong>目印：</strong>${escapeHtml(venue.landmark)}</p>
-    <p>${escapeHtml(venue.note)}</p>
+    <p class="venue-landmark"><strong>目印：</strong>${escapeHtml(venue.landmark)}</p>
+    <div class="schedule-heading">タイムスケジュール</div>
+    ${scheduleContent}
     <a class="primary-link" href="${mapsUrl(venue)}" target="_blank" rel="noopener">Google Mapsで開く</a>
   `;
   if (typeof dialog.showModal === 'function') dialog.showModal();
@@ -61,13 +113,16 @@ function renderMarkers(items) {
 
 function renderList(items) {
   venueCount.textContent = `${items.length}会場`;
-  venueList.innerHTML = items.length ? items.map((venue, index) => `
-    <button class="venue-card" type="button" data-venue-id="${venue.id}">
-      <h3>${index + 1}. ${escapeHtml(venue.name)}</h3>
-      <p>${escapeHtml(venue.landmark)}</p>
-      <span class="tag">タップして詳細・地図</span>
-    </button>
-  `).join('') : '<p>該当する会場がありません。</p>';
+  venueList.innerHTML = items.length ? items.map((venue, index) => {
+    const count = venueSchedules(venue.id).length;
+    return `
+      <button class="venue-card" type="button" data-venue-id="${venue.id}">
+        <h3>${index + 1}. ${escapeHtml(venue.name)}</h3>
+        <p>${escapeHtml(venue.landmark)}</p>
+        <span class="tag">タイムスケジュール ${count}件</span>
+      </button>
+    `;
+  }).join('') : '<p>該当する会場がありません。</p>';
   venueList.querySelectorAll('[data-venue-id]').forEach(button => {
     button.addEventListener('click', () => {
       const venue = venues.find(v => v.id === Number(button.dataset.venueId));
@@ -81,6 +136,29 @@ function render() {
   const filtered = venues.filter(v => `${v.name} ${v.landmark}`.toLowerCase().includes(query));
   renderMarkers(filtered);
   renderList(filtered);
+}
+
+async function loadSchedules() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/imaike_event_schedules?select=id,event_date,start_time,end_time,title,venue_id,description,sort_order&order=event_date.asc,start_time.asc,sort_order.asc`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    schedules = await response.json();
+    schedulesLoaded = true;
+    render();
+  } catch (error) {
+    console.error('タイムスケジュールの取得に失敗しました:', error);
+    schedulesLoaded = true;
+    schedules = [];
+    render();
+  }
 }
 
 searchInput.addEventListener('input', render);
@@ -105,3 +183,4 @@ locateButton.addEventListener('click', () => {
 });
 
 render();
+loadSchedules();
