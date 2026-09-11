@@ -214,5 +214,10 @@ locateButton.addEventListener('click', () => {
   );
 });
 
+// <dialog> は標準では backdrop のクリックで閉じないため、枠外タップを明示的に処理する。
+dialog.addEventListener('click', event => {
+  if (event.target === dialog) dialog.close();
+});
+
 render();
 loadSchedules();
