@@ -56,25 +56,47 @@ function venueSchedules(venueId) {
   return schedules.filter(schedule => Number(schedule.venue_id) === venueId);
 }
 
+function genreClass(genre) {
+  return ({ 音楽: 'music', ダンス: 'dance', ステージ: 'stage', その他: 'other' })[genre] || 'other';
+}
+
 function renderScheduleDay(dateString, items) {
   const dayItems = items
     .filter(item => item.event_date === dateString)
     .sort((a, b) => String(a.start_time).localeCompare(String(b.start_time)) || Number(a.sort_order || 0) - Number(b.sort_order || 0));
 
   if (!dayItems.length) {
-    return `<section class="schedule-day"><h3>${formatDate(dateString)}</h3><p class="schedule-empty">予定はありません。</p></section>`;
+    return `<section class="schedule-day"><div class="schedule-date"><span>${formatDate(dateString)}</span><span class="day-count">0件</span></div><p class="schedule-empty">予定はありません。</p></section>`;
   }
 
   return `
     <section class="schedule-day">
-      <h3>${formatDate(dateString)}</h3>
+      <div class="schedule-date">
+        <h3>${formatDate(dateString)}</h3>
+        <span class="day-count">${dayItems.length}件</span>
+      </div>
       <div class="schedule-items">
-        ${dayItems.map(item => `
-          <div class="schedule-item">
-            <time>${escapeHtml(formatTime(item.start_time))}</time>
-            <div class="schedule-title">${escapeHtml(item.title)}</div>
-          </div>
-        `).join('')}
+        ${dayItems.map(item => {
+          const genre = item.genre || 'その他';
+          const tags = Array.isArray(item.tags) ? item.tags : [];
+          const end = formatTime(item.end_time);
+          return `
+            <article class="schedule-item genre-${genreClass(genre)}">
+              <div class="schedule-time">
+                <time>${escapeHtml(formatTime(item.start_time))}</time>
+                ${end ? `<span>〜${escapeHtml(end)}</span>` : '<span>START</span>'}
+              </div>
+              <div class="schedule-main">
+                <div class="schedule-meta">
+                  <span class="genre-badge">${escapeHtml(genre)}</span>
+                  ${tags.map(tag => `<span class="schedule-tag">#${escapeHtml(tag)}</span>`).join('')}
+                </div>
+                <div class="schedule-title">${escapeHtml(item.title)}</div>
+                ${item.description ? `<p class="schedule-description">${escapeHtml(item.description)}</p>` : ''}
+              </div>
+            </article>
+          `;
+        }).join('')}
       </div>
     </section>
   `;
@@ -87,11 +109,21 @@ function showVenue(venue) {
     : '<p class="schedule-loading">タイムスケジュールを読み込み中…</p>';
 
   dialogBody.innerHTML = `
-    <h2>${escapeHtml(venue.name)}</h2>
-    <p class="venue-landmark"><strong>目印：</strong>${escapeHtml(venue.landmark)}</p>
-    <div class="schedule-heading">タイムスケジュール</div>
+    <div class="dialog-venue-header">
+      <div>
+        <div class="dialog-kicker">会場 ${venue.id}</div>
+        <h2>${escapeHtml(venue.name)}</h2>
+        <p class="venue-landmark">📍 ${escapeHtml(venue.landmark)}</p>
+      </div>
+      <span class="venue-total">${items.length}ステージ</span>
+    </div>
+    <div class="schedule-heading-row">
+      <div class="schedule-heading">タイムテーブル</div>
+      <span>2026</span>
+    </div>
+    <div class="schedule-note">開始時刻順に表示しています。終了時刻は公式発表がある場合のみ表示します。</div>
     ${scheduleContent}
-    <a class="primary-link" href="${mapsUrl(venue)}" target="_blank" rel="noopener">Google Mapsで開く</a>
+    <a class="primary-link" href="${mapsUrl(venue)}" target="_blank" rel="noopener">📍 Google Mapsで会場を開く</a>
   `;
   if (typeof dialog.showModal === 'function') dialog.showModal();
 }
@@ -141,7 +173,7 @@ function render() {
 async function loadSchedules() {
   try {
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/imaike_event_schedules?select=id,event_date,start_time,end_time,title,venue_id,description,sort_order&order=event_date.asc,start_time.asc,sort_order.asc`,
+      `${SUPABASE_URL}/rest/v1/imaike_event_schedules?select=id,event_date,start_time,end_time,title,venue_id,description,sort_order,genre,tags&order=event_date.asc,start_time.asc,sort_order.asc`,
       {
         headers: {
           apikey: SUPABASE_KEY,
