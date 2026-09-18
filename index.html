@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#111827" />
   <meta name="description" content="2026 今池まつりの会場を探せる非公式コンパス" />
   <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3pY2K6j7b8Yw4K4jJ4n6j5V6V6V6V=" crossorigin="" />
   <title>今池まつり Compass</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -35,12 +36,15 @@
     </section>
 
     <section class="map-shell" aria-label="会場マップ">
-      <div id="map" class="map-placeholder">
-        <div class="map-grid"></div>
-        <div id="markerLayer" class="marker-layer"></div>
-        <div class="map-center-label">今池</div>
+      <div id="map" class="leaflet-map"></div>
+      <div class="map-options" aria-label="地図の表示設定">
+        <strong>地図の表示設定</strong>
+        <label><input type="checkbox" id="showMajorRoads" checked /> 幹線道路</label>
+        <label><input type="checkbox" id="showOtherRoads" checked /> その他の道路</label>
+        <label><input type="checkbox" id="showVenuePins" checked /> 会場ピン</label>
+        <label><input type="checkbox" id="showVenueLabels" checked /> 会場名</label>
       </div>
-      <div class="map-note">会場をタップすると詳細が表示されます</div>
+      <div class="map-note">会場をタップすると詳細が表示されます。道路データはOpenStreetMapを利用しています。</div>
     </section>
 
     <section>
@@ -60,10 +64,11 @@
   </dialog>
 
   <footer>
-    <p>掲載情報は公式発表をもとにした非公式アプリです。内容は変更される場合があります。</p>
+    <p>地図データ © OpenStreetMap contributors。掲載情報は公式発表をもとにした非公式アプリです。</p>
     <p><a href="https://www.imaike55.com/" target="_blank" rel="noopener">公式サイト</a></p>
   </footer>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="app.js"></script>
 </body>
 </html>
