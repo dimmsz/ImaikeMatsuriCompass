@@ -70,33 +70,6 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script>
-    // OpenStreetMap由来の、施設記号を抑えた背景タイルに差し替えます。
-    const originalTileLayer = L.tileLayer;
-    L.tileLayer = function (url, options = {}) {
-      if (url.includes('tile.openstreetmap.org')) {
-        url = 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
-        options = {
-          ...options,
-          subdomains: 'abcd',
-          attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-        };
-      }
-      return originalTileLayer(url, options);
-    };
-  </script>
   <script src="app.js"></script>
-  <script>
-    // 道路オーバーレイは初期状態では非表示にします。
-    window.addEventListener('load', () => {
-      for (const id of ['showMajorRoads', 'showOtherRoads']) {
-        const checkbox = document.getElementById(id);
-        if (checkbox && checkbox.checked) {
-          checkbox.checked = false;
-          checkbox.dispatchEvent(new Event('change'));
-        }
-      }
-    });
-  </script>
 </body>
 </html>
