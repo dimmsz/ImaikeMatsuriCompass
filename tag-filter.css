@@ -1,0 +1,65 @@
+.tag-panel {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.tag-panel-title {
+  margin: 0 0 9px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.filter-tag {
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.filter-tag.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.tag-results {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.tag-results h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+.tag-result-list {
+  display: grid;
+  gap: 8px;
+}
+.tag-event-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.tag-event-card:hover { border-color: #9ca3af; }
+.tag-event-date { color: var(--accent-dark); font-size: 12px; font-weight: 800; }
+.tag-event-card strong { font-size: 14px; line-height: 1.4; }
+.tag-event-venue { color: var(--muted); font-size: 12px; }
+.tag-empty { color: var(--muted); font-size: 13px; }
