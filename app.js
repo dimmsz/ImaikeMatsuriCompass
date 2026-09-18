@@ -13,6 +13,13 @@ let schedules = [];
 let schedulesLoaded = false;
 let showLabels = true;
 
+const venueLabelStyle = document.createElement('style');
+venueLabelStyle.textContent = `
+.venue-label-icon { background: transparent; border: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+.venue-label-icon span { display: block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 8px; border: 1px solid rgba(209,213,219,.95); border-radius: 7px; background: rgba(255,255,255,.94); box-shadow: 0 2px 7px rgba(0,0,0,.14); color: #111827; font-size: 11px; font-weight: 700; line-height: 18px; }
+`;
+document.head.appendChild(venueLabelStyle);
+
 const venueList = document.getElementById('venueList');
 const venueCount = document.getElementById('venueCount');
 const searchInput = document.getElementById('searchInput');
@@ -51,21 +58,91 @@ function showVenue(venue) {
 function venueIcon(number) {
   return L.divIcon({ className: 'venue-marker-icon', html: `<span>${number}</span>`, iconSize: [34, 42], iconAnchor: [17, 42] });
 }
+
+function labelSize(text) {
+  const width = Math.min(190, Math.max(76, Array.from(text).length * 12 + 18));
+  return { width, height: 28 };
+}
+
+function labelCandidates(point, size) {
+  const halfW = size.width / 2;
+  const halfH = size.height / 2;
+  const gap = 12;
+  return [
+    { x: point.x, y: point.y - 42 - halfH },
+    { x: point.x + 34 + halfW + gap, y: point.y - 21 },
+    { x: point.x - 34 - halfW - gap, y: point.y - 21 },
+    { x: point.x, y: point.y + 18 + halfH },
+    { x: point.x + 30 + halfW, y: point.y - 48 - halfH },
+    { x: point.x - 30 - halfW, y: point.y - 48 - halfH },
+    { x: point.x + 30 + halfW, y: point.y + 12 + halfH },
+    { x: point.x - 30 - halfW, y: point.y + 12 + halfH }
+  ];
+}
+
+function rectanglesOverlap(a, b, padding = 4) {
+  return !(a.right + padding < b.left || a.left - padding > b.right || a.bottom + padding < b.top || a.top - padding > b.bottom);
+}
+
+function layoutVenueLabels() {
+  const occupied = [];
+  venueMarkers.forEach(entry => {
+    if (!showLabels || !map.hasLayer(entry.marker) || !map.hasLayer(entry.labelMarker)) return;
+    const point = map.latLngToContainerPoint(entry.marker.getLatLng());
+    const size = entry.labelSize;
+    const candidates = labelCandidates(point, size);
+    let selected = candidates[0];
+    let selectedRect = null;
+    for (const candidate of candidates) {
+      const rect = { left: candidate.x - size.width / 2, right: candidate.x + size.width / 2, top: candidate.y - size.height / 2, bottom: candidate.y + size.height / 2 };
+      const inside = rect.right >= 0 && rect.left <= map.getSize().x && rect.bottom >= 0 && rect.top <= map.getSize().y;
+      if (inside && !occupied.some(other => rectanglesOverlap(rect, other))) {
+        selected = candidate;
+        selectedRect = rect;
+        break;
+      }
+      if (!selectedRect) selectedRect = rect;
+    }
+    occupied.push(selectedRect);
+    entry.labelMarker.setLatLng(map.containerPointToLatLng(selected));
+  });
+}
+
+function createVenueLabel(venue) {
+  const size = labelSize(venue.name);
+  const labelMarker = L.marker([venue.lat, venue.lng], {
+    icon: L.divIcon({ className: 'venue-label-icon', html: `<span>${escapeHtml(venue.name)}</span>`, iconSize: [size.width, size.height], iconAnchor: [size.width / 2, size.height / 2] }),
+    interactive: false,
+    keyboard: false,
+    zIndexOffset: 1000
+  });
+  return { labelMarker, labelSize: size };
+}
+
 function renderMarkers(items) {
   venueLayer.clearLayers();
   venueMarkers.length = 0;
   items.forEach(venue => {
     const marker = L.marker([venue.lat, venue.lng], { icon: venueIcon(venue.venueNo), title: venue.name });
-    marker.bindTooltip(venue.name, { permanent: showLabels, direction: 'top', offset: [0, -38], className: 'venue-tooltip' });
+    const label = createVenueLabel(venue);
     marker.on('click', () => showVenue(venue));
-    venueMarkers.push(marker);
+    const entry = { marker, labelMarker: label.labelMarker, labelSize: label.labelSize };
+    venueMarkers.push(entry);
     if (showVenuePins.checked) marker.addTo(venueLayer);
+    if (showVenueLabels.checked) label.labelMarker.addTo(venueLayer);
   });
+  requestAnimationFrame(layoutVenueLabels);
 }
+
 function updateLabelVisibility() {
   showLabels = showVenueLabels.checked;
-  venueMarkers.forEach(marker => showLabels ? marker.openTooltip() : marker.closeTooltip());
+  venueMarkers.forEach(entry => {
+    if (showLabels) entry.labelMarker.addTo(venueLayer);
+    else entry.labelMarker.remove();
+  });
+  requestAnimationFrame(layoutVenueLabels);
 }
+
 function renderList(items) {
   venueCount.textContent = `${items.length}会場`;
   venueList.innerHTML = items.length ? items.map(venue => `<button class="venue-card" type="button" data-venue-id="${venue.id}"><h3>${venue.venueNo}. ${escapeHtml(venue.name)}</h3><p>${escapeHtml(venue.landmark)}</p><span class="tag">タイムスケジュール ${venueSchedules(venue.id).length}件</span></button>`).join('') : '<p>該当する会場がありません。</p>';
@@ -113,9 +190,12 @@ async function loadOsmRoads() {
 showBaseMap.addEventListener('change', () => setLayerVisibility(baseMapLayer, showBaseMap.checked));
 showMajorRoads.addEventListener('change', () => setLayerVisibility(majorRoadLayer, showMajorRoads.checked));
 showOtherRoads.addEventListener('change', () => setLayerVisibility(otherRoadLayer, showOtherRoads.checked));
-showVenuePins.addEventListener('change', () => setLayerVisibility(venueLayer, showVenuePins.checked));
+showVenuePins.addEventListener('change', () => {
+  venueMarkers.forEach(entry => showVenuePins.checked ? entry.marker.addTo(venueLayer) : entry.marker.remove());
+});
 showVenueLabels.addEventListener('change', updateLabelVisibility);
 searchInput.addEventListener('input', render);
+map.on('zoomend moveend', layoutVenueLabels);
 locateButton.addEventListener('click', () => {
   if (!navigator.geolocation) return alert('このブラウザでは現在地取得に対応していません。');
   locateButton.disabled = true;
