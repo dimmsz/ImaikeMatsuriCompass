@@ -15,9 +15,9 @@ const venues = [
 ];
 const mapBounds = { minLat: 35.1669, maxLat: 35.1708, minLng: 136.9334, maxLng: 136.9391 };
 const map = L.map('map', { zoomControl: true }).setView([35.1688, 136.9365], 16);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' }).addTo(map);
-const majorRoadLayer = L.layerGroup().addTo(map);
-const otherRoadLayer = L.layerGroup().addTo(map);
+const baseMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' }).addTo(map);
+const majorRoadLayer = L.layerGroup();
+const otherRoadLayer = L.layerGroup();
 const venueLayer = L.layerGroup().addTo(map);
 const venueMarkers = [];
 let currentLocationMarker = null;
@@ -31,6 +31,7 @@ const searchInput = document.getElementById('searchInput');
 const dialog = document.getElementById('venueDialog');
 const dialogBody = document.getElementById('dialogBody');
 const locateButton = document.getElementById('locateButton');
+const showBaseMap = document.getElementById('showBaseMap');
 const showMajorRoads = document.getElementById('showMajorRoads');
 const showOtherRoads = document.getElementById('showOtherRoads');
 const showVenuePins = document.getElementById('showVenuePins');
@@ -99,13 +100,7 @@ async function loadOsmRoads() {
     data.elements.filter(e => Array.isArray(e.geometry) && e.geometry.length > 1).forEach(way => {
       const { major, highway } = roadGroup(way.tags || {});
       const points = way.geometry.map(p => [p.lat, p.lon]);
-      const line = L.polyline(points, {
-        color: major ? '#d97706' : '#9ca3af',
-        weight: major ? 5 : (highway === 'tertiary' ? 3 : 1.5),
-        opacity: major ? 0.85 : 0.65,
-        lineCap: 'round',
-        lineJoin: 'round'
-      });
+      const line = L.polyline(points, { color: major ? '#d97706' : '#9ca3af', weight: major ? 5 : (highway === 'tertiary' ? 3 : 1.5), opacity: major ? 0.85 : 0.65, lineCap: 'round', lineJoin: 'round' });
       line.bindTooltip(`${highway || '道路'}`, { sticky: true });
       line.addTo(major ? majorRoadLayer : otherRoadLayer);
     });
@@ -114,6 +109,7 @@ async function loadOsmRoads() {
   }
 }
 
+showBaseMap.addEventListener('change', () => showBaseMap.checked ? map.addLayer(baseMapLayer) : map.removeLayer(baseMapLayer));
 showMajorRoads.addEventListener('change', () => showMajorRoads.checked ? map.addLayer(majorRoadLayer) : map.removeLayer(majorRoadLayer));
 showOtherRoads.addEventListener('change', () => showOtherRoads.checked ? map.addLayer(otherRoadLayer) : map.removeLayer(otherRoadLayer));
 showVenuePins.addEventListener('change', () => showVenuePins.checked ? map.addLayer(venueLayer) : map.removeLayer(venueLayer));
