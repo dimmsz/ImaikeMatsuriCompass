@@ -3,7 +3,7 @@ const SUPABASE_KEY = 'sb_publishable_lQvSmWOndjOMgL5sd5Xdsw_VZEv2k07';
 const EVENT_DATES = ['2026-09-20', '2026-09-21'];
 const venues = [
   { id: 1, name: '今池ガスホール', landmark: '今池ガスビル9F', lat: 35.16890, lng: 136.93650 },
-  { id: 2, name: 'ストリートコーナーパラダイス', landmark: '今池交差点・りそな銀行前', lat: 35.16972, lng: 136.93696 },
+  { id: 2, name: 'ストリートコーナーパラダイス', landmark: '今池交差点・りそな銀行前', lat: 35.16955, lng: 136.93705 },
   { id: 3, name: '東南会場', landmark: 'ダイエー通・JTPパーキング', lat: 35.16903, lng: 136.93800 },
   { id: 4, name: '一本裏会場', landmark: 'セブンイレブン今池駅南店駐車場', lat: 35.16828, lng: 136.93695 },
   { id: 5, name: '十六広場', landmark: '十六銀行 今池支店駐車場', lat: 35.16880, lng: 136.93600 },
