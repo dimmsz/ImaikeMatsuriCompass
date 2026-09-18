@@ -38,3 +38,8 @@
   .leaflet-map { height: 350px; }
   .map-options { gap: 8px 10px; font-size: 12px; }
 }
+
+/* Fallback: hide the Leaflet tile pane directly when the base-map checkbox is off. */
+.map-shell:has(#showBaseMap:not(:checked)) .leaflet-tile-pane {
+  display: none !important;
+}
