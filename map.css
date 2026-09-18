@@ -53,3 +53,30 @@
 .map-shell:has(#showBaseMap:not(:checked)) .leaflet-tile-pane {
   display: none !important;
 }
+
+/* Marker for non-numbered information points such as the festival headquarters. */
+.map-point-icon { background: transparent; border: 0; }
+.map-point-icon span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 2px 7px rgba(0,0,0,.3);
+}
+.map-point-label {
+  border: 1px solid rgba(37,99,235,.35);
+  border-radius: 7px;
+  background: rgba(255,255,255,.96);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 2px 7px rgba(0,0,0,.16);
+}
+.map-point-label::before { border-right-color: rgba(255,255,255,.96); }
