@@ -1,0 +1,40 @@
+.leaflet-map {
+  width: 100%;
+  height: 420px;
+  background: #e5e7eb;
+}
+.map-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 12px 14px;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.map-options strong { width: 100%; font-size: 14px; }
+.map-options label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+.map-options input { accent-color: var(--accent); }
+.venue-marker-icon { background: transparent; border: 0; }
+.venue-marker-icon span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 0 2px 7px rgba(0,0,0,.3);
+}
+.venue-tooltip { border: 0; border-radius: 7px; box-shadow: 0 2px 8px rgba(0,0,0,.18); font-weight: 700; }
+.venue-tooltip::before { display: none; }
+.leaflet-control-attribution { font-size: 10px; }
+@media (max-width: 520px) {
+  .leaflet-map { height: 350px; }
+  .map-options { gap: 8px 10px; font-size: 12px; }
+}
