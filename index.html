@@ -38,15 +38,17 @@
 
     <section class="map-shell" aria-label="会場マップ">
       <div id="map" class="leaflet-map"></div>
-      <div class="map-options" aria-label="地図の表示設定">
-        <strong>地図の表示設定</strong>
-        <label><input type="checkbox" id="showBaseMap" checked /> 背景地図（道路・建物・Pなど）</label>
-        <label><input type="checkbox" id="showMajorRoads" /> 幹線道路</label>
-        <label><input type="checkbox" id="showOtherRoads" /> その他の道路</label>
-        <label><input type="checkbox" id="showVenuePins" checked /> 会場ピン</label>
-        <label><input type="checkbox" id="showVenueLabels" checked /> 会場名</label>
-      </div>
-      <div class="map-note">表示設定で地図の各要素を切り替えられます。背景地図はOpenStreetMapを利用しています。</div>
+      <details class="map-settings">
+        <summary>⚙ 地図の表示設定</summary>
+        <div class="map-options" aria-label="地図の表示設定">
+          <label><input type="checkbox" id="showBaseMap" checked /> 背景地図（道路・建物・Pなど）</label>
+          <label><input type="checkbox" id="showMajorRoads" /> 幹線道路</label>
+          <label><input type="checkbox" id="showOtherRoads" /> その他の道路</label>
+          <label><input type="checkbox" id="showVenuePins" checked /> 会場ピン</label>
+          <label><input type="checkbox" id="showVenueLabels" checked /> 会場名</label>
+        </div>
+      </details>
+      <div class="map-note">地図の表示設定から表示項目を切り替えられます。地図データはOpenStreetMapを利用しています。</div>
     </section>
 
     <section>
@@ -71,6 +73,6 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js?v=20260918-2"></script>
+  <script src="app.js?v=20260918-3"></script>
 </body>
 </html>
