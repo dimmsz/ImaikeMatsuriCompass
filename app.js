@@ -1,18 +1,7 @@
 const SUPABASE_URL = 'https://ufypynzhmbrozbxbqxsq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_lQvSmWOndjOMgL5sd5Xdsw_VZEv2k07';
 const EVENT_DATES = ['2026-09-20', '2026-09-21'];
-const venues = [
-  { id: 1, name: '今池ガスホール', landmark: '今池ガスビル9F', lat: 35.16890, lng: 136.93650 },
-  { id: 2, name: 'ストリートコーナーパラダイス', landmark: '今池交差点・りそな銀行前', lat: 35.16955, lng: 136.93705 },
-  { id: 3, name: '東南会場', landmark: 'ダイエー通・JTPパーキング', lat: 35.16903, lng: 136.93800 },
-  { id: 4, name: '一本裏会場', landmark: 'セブンイレブン今池駅南店駐車場', lat: 35.16828, lng: 136.93695 },
-  { id: 5, name: '十六広場', landmark: '十六銀行 今池支店駐車場', lat: 35.16880, lng: 136.93600 },
-  { id: 6, name: '西南会場', landmark: '中屋50m西入る', lat: 35.16900, lng: 136.93492 },
-  { id: 7, name: 'Imaike Park会場', landmark: '今池公園', lat: 35.16772, lng: 136.93422 },
-  { id: 8, name: 'ノースアイランド', landmark: '魚清前', lat: 35.16990, lng: 136.93780 },
-  { id: 9, name: '4丁目Pit', landmark: '水野胃腸科P', lat: 35.16855, lng: 136.93815 },
-  { id: 10, name: '下町ネバーランド', landmark: 'スギヤマ調剤薬局駐車場近辺', lat: 35.16930, lng: 136.93700 }
-];
+let venues = [];
 const mapBounds = { minLat: 35.1669, maxLat: 35.1708, minLng: 136.9334, maxLng: 136.9391 };
 const map = L.map('map', { zoomControl: true }).setView([35.1688, 136.9365], 16);
 const baseMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' }).addTo(map);
@@ -56,7 +45,7 @@ function showVenue(venue) {
     if (!dayItems.length) return `<section class="schedule-day"><div class="schedule-date"><h3>${formatDate(date)}</h3><span class="day-count">0件</span></div><p class="schedule-empty">予定はありません。</p></section>`;
     return `<section class="schedule-day"><div class="schedule-date"><h3>${formatDate(date)}</h3><span class="day-count">${dayItems.length}件</span></div><div class="schedule-items">${dayItems.map(item => { const genre = item.genre || 'その他'; const tags = Array.isArray(item.tags) ? item.tags : []; const end = formatTime(item.end_time); return `<article class="schedule-item genre-${genreClass(genre)}"><div class="schedule-time"><time>${escapeHtml(formatTime(item.start_time))}</time><span>${end ? `〜${escapeHtml(end)}` : 'START'}</span></div><div class="schedule-main"><div class="schedule-meta"><span class="genre-badge">${escapeHtml(genre)}</span>${tags.map(t => `<span class="schedule-tag">#${escapeHtml(t)}</span>`).join('')}</div><div class="schedule-title">${escapeHtml(item.title)}</div>${item.description ? `<p class="schedule-description">${escapeHtml(item.description)}</p>` : ''}</div></article>`; }).join('')}</div></section>`;
   }).join('') : '<p class="schedule-loading">タイムスケジュールを読み込み中…</p>';
-  dialogBody.innerHTML = `<div class="dialog-venue-header"><div><div class="dialog-kicker">会場 ${venue.id}</div><h2>${escapeHtml(venue.name)}</h2><p class="venue-landmark">📍 ${escapeHtml(venue.landmark)}</p></div><span class="venue-total">${items.length}ステージ</span></div><div class="schedule-heading-row"><div class="schedule-heading">タイムテーブル</div><span>2026</span></div><div class="schedule-note">開始時刻順に表示しています。終了時刻は公式発表がある場合のみ表示します。</div>${content}<a class="primary-link" href="${mapsUrl(venue)}" target="_blank" rel="noopener">📍 Google Mapsで会場を開く</a>`;
+  dialogBody.innerHTML = `<div class="dialog-venue-header"><div><div class="dialog-kicker">会場 ${venue.venueNo}</div><h2>${escapeHtml(venue.name)}</h2><p class="venue-landmark">📍 ${escapeHtml(venue.landmark)}</p></div><span class="venue-total">${items.length}ステージ</span></div><div class="schedule-heading-row"><div class="schedule-heading">タイムテーブル</div><span>2026</span></div><div class="schedule-note">開始時刻順に表示しています。終了時刻は公式発表がある場合のみ表示します。</div>${content}<a class="primary-link" href="${mapsUrl(venue)}" target="_blank" rel="noopener">📍 Google Mapsで会場を開く</a>`;
   if (typeof dialog.showModal === 'function') dialog.showModal();
 }
 
@@ -67,7 +56,7 @@ function renderMarkers(items) {
   venueLayer.clearLayers();
   venueMarkers.length = 0;
   items.forEach(venue => {
-    const marker = L.marker([venue.lat, venue.lng], { icon: venueIcon(venue.id), title: venue.name });
+    const marker = L.marker([venue.lat, venue.lng], { icon: venueIcon(venue.venueNo), title: venue.name });
     marker.bindTooltip(venue.name, { permanent: showLabels, direction: 'top', offset: [0, -38], className: 'venue-tooltip' });
     marker.on('click', () => showVenue(venue));
     venueMarkers.push(marker);
@@ -80,7 +69,7 @@ function updateLabelVisibility() {
 }
 function renderList(items) {
   venueCount.textContent = `${items.length}会場`;
-  venueList.innerHTML = items.length ? items.map(venue => `<button class="venue-card" type="button" data-venue-id="${venue.id}"><h3>${venue.id}. ${escapeHtml(venue.name)}</h3><p>${escapeHtml(venue.landmark)}</p><span class="tag">タイムスケジュール ${venueSchedules(venue.id).length}件</span></button>`).join('') : '<p>該当する会場がありません。</p>';
+  venueList.innerHTML = items.length ? items.map(venue => `<button class="venue-card" type="button" data-venue-id="${venue.id}"><h3>${venue.venueNo}. ${escapeHtml(venue.name)}</h3><p>${escapeHtml(venue.landmark)}</p><span class="tag">タイムスケジュール ${venueSchedules(venue.id).length}件</span></button>`).join('') : '<p>該当する会場がありません。</p>';
   venueList.querySelectorAll('[data-venue-id]').forEach(button => button.addEventListener('click', () => { const venue = venues.find(v => v.id === Number(button.dataset.venueId)); if (venue) { map.setView([venue.lat, venue.lng], 17); showVenue(venue); } }));
 }
 function render() {
@@ -135,9 +124,23 @@ locateButton.addEventListener('click', () => {
 });
 dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
 
-render();
 loadOsmRoads();
+loadVenues();
 loadSchedules();
+
+async function loadVenues() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/imaike_venues?select=id,venue_no,name,location,latitude,longitude,sort_order&order=sort_order.asc`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const rows = await response.json();
+    venues = rows.map(row => ({ id: Number(row.id), venueNo: Number(row.venue_no), name: row.name, landmark: row.location || '', lat: Number(row.latitude), lng: Number(row.longitude) }));
+  } catch (error) {
+    console.error('会場情報の取得に失敗しました:', error);
+    venues = [];
+  } finally {
+    render();
+  }
+}
 
 async function loadSchedules() {
   try {
