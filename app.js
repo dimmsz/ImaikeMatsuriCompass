@@ -43,6 +43,11 @@ function formatDate(value) { const d = new Date(`${value}T00:00:00Z`); return `$
 function formatTime(value) { return value ? String(value).slice(0, 5) : ''; }
 function venueSchedules(id) { return schedules.filter(s => Number(s.venue_id) === id); }
 function genreClass(genre) { return ({ 音楽: 'music', ダンス: 'dance', ステージ: 'stage', その他: 'other' })[genre] || 'other'; }
+function setLayerVisibility(layer, visible) {
+  const visibleNow = map.hasLayer(layer);
+  if (visible && !visibleNow) map.addLayer(layer);
+  if (!visible && visibleNow) map.removeLayer(layer);
+}
 
 function showVenue(venue) {
   const items = venueSchedules(venue.id);
@@ -104,15 +109,17 @@ async function loadOsmRoads() {
       line.bindTooltip(`${highway || '道路'}`, { sticky: true });
       line.addTo(major ? majorRoadLayer : otherRoadLayer);
     });
+    setLayerVisibility(majorRoadLayer, showMajorRoads.checked);
+    setLayerVisibility(otherRoadLayer, showOtherRoads.checked);
   } catch (error) {
     console.warn('OpenStreetMapの道路データを取得できませんでした:', error);
   }
 }
 
-showBaseMap.addEventListener('change', () => showBaseMap.checked ? map.addLayer(baseMapLayer) : map.removeLayer(baseMapLayer));
-showMajorRoads.addEventListener('change', () => showMajorRoads.checked ? map.addLayer(majorRoadLayer) : map.removeLayer(majorRoadLayer));
-showOtherRoads.addEventListener('change', () => showOtherRoads.checked ? map.addLayer(otherRoadLayer) : map.removeLayer(otherRoadLayer));
-showVenuePins.addEventListener('change', () => showVenuePins.checked ? map.addLayer(venueLayer) : map.removeLayer(venueLayer));
+showBaseMap.addEventListener('change', () => setLayerVisibility(baseMapLayer, showBaseMap.checked));
+showMajorRoads.addEventListener('change', () => setLayerVisibility(majorRoadLayer, showMajorRoads.checked));
+showOtherRoads.addEventListener('change', () => setLayerVisibility(otherRoadLayer, showOtherRoads.checked));
+showVenuePins.addEventListener('change', () => setLayerVisibility(venueLayer, showVenuePins.checked));
 showVenueLabels.addEventListener('change', updateLabelVisibility);
 searchInput.addEventListener('input', render);
 locateButton.addEventListener('click', () => {
