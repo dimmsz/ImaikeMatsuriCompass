@@ -2,8 +2,7 @@ const SUPABASE_URL = 'https://ufypynzhmbrozbxbqxsq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_lQvSmWOndjOMgL5sd5Xdsw_VZEv2k07';
 const EVENT_DATES = ['2026-09-20', '2026-09-21'];
 let venues = [];
-const mapBounds = { minLat: 35.1669, maxLat: 35.1708, minLng: 136.9334, maxLng: 136.9391 };
-const map = L.map('map', { zoomControl: true }).setView([35.1688, 136.9365], 16);
+const map = L.map('map', { zoomControl: true }).setView([0, 0], 2);
 const baseMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' }).addTo(map);
 const majorRoadLayer = L.layerGroup();
 const otherRoadLayer = L.layerGroup();
@@ -85,7 +84,13 @@ function roadGroup(tags) {
   return { major, highway };
 }
 async function loadOsmRoads() {
-  const bbox = `${mapBounds.minLat},${mapBounds.minLng},${mapBounds.maxLat},${mapBounds.maxLng}`;
+  if (!venues.length) return;
+  const latitudes = venues.map(v => v.lat).filter(Number.isFinite);
+  const longitudes = venues.map(v => v.lng).filter(Number.isFinite);
+  if (!latitudes.length || !longitudes.length) return;
+  const paddingLat = 0.001;
+  const paddingLng = 0.001;
+  const bbox = `${Math.min(...latitudes) - paddingLat},${Math.min(...longitudes) - paddingLng},${Math.max(...latitudes) + paddingLat},${Math.max(...longitudes) + paddingLng}`;
   const query = `[out:json][timeout:25];way["highway"](${bbox});out tags geom;`;
   try {
     const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
@@ -124,7 +129,6 @@ locateButton.addEventListener('click', () => {
 });
 dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
 
-loadOsmRoads();
 loadVenues();
 loadSchedules();
 
@@ -134,6 +138,11 @@ async function loadVenues() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const rows = await response.json();
     venues = rows.map(row => ({ id: Number(row.id), venueNo: Number(row.venue_no), name: row.name, landmark: row.location || '', lat: Number(row.latitude), lng: Number(row.longitude) }));
+    if (venues.length) {
+      const bounds = L.latLngBounds(venues.map(venue => [venue.lat, venue.lng]));
+      map.fitBounds(bounds.pad(0.15));
+      await loadOsmRoads();
+    }
   } catch (error) {
     console.error('会場情報の取得に失敗しました:', error);
     venues = [];
