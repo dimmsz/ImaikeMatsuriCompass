@@ -14,95 +14,25 @@
   <title>今池まつり Compass</title>
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <div class="eyebrow">2026 今池まつり</div>
-      <h1>Compass</h1>
-    </div>
-    <button id="locateButton" class="icon-button" type="button" title="現在地を表示" aria-label="現在地を表示">⌖</button>
-  </header>
-
+  <header class="topbar"><div><div class="eyebrow">2026 今池まつり</div><h1>Compass</h1></div><button id="locateButton" class="icon-button" type="button" title="現在地を表示" aria-label="現在地を表示">⌖</button></header>
   <main>
-    <section class="hero-card">
-      <div>
-        <div class="hero-title">今池の会場を、すぐ見つける。</div>
-        <p>2026年9月20日(日)・21日(月・祝)</p>
-      </div>
-      <span class="badge">非公式</span>
-    </section>
-
+    <section class="hero-card"><div><div class="hero-title">今池の会場を、すぐ見つける。</div><p>2026年9月20日(日)・21日(月・祝)</p></div><span class="badge">非公式</span></section>
     <section class="controls" aria-label="会場・出演者・ジャンル検索">
-      <label class="search-box">
-        <span aria-hidden="true">⌕</span>
-        <input id="searchInput" type="search" placeholder="会場名・出演者・ジャンル・タグで検索" autocomplete="off" />
-      </label>
-
-      <details id="genrePanel" class="filter-panel" open>
-        <summary>ジャンルから探す</summary>
-        <div id="genreList" class="filter-list"><span class="filter-empty">ジャンルを読み込み中…</span></div>
-      </details>
-
-      <details id="tagPanel" class="filter-panel" open>
-        <summary>タグから探す</summary>
-        <div id="tagList" class="filter-list"><span class="filter-empty">タグを読み込み中…</span></div>
-      </details>
-
-      <section id="tagResults" class="tag-results" aria-live="polite" hidden>
-        <h2 id="tagResultTitle"></h2>
-        <div id="tagResultList" class="tag-result-list"></div>
-      </section>
+      <label class="search-box"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="会場名・出演者・ジャンル・タグで検索" autocomplete="off" /></label>
+      <details id="genrePanel" class="filter-panel" open><summary>ジャンルから探す</summary><div id="genreList" class="filter-list"><span class="filter-empty">ジャンルを読み込み中…</span></div></details>
+      <details id="tagPanel" class="filter-panel" open><summary>タグから探す</summary><div id="tagList" class="filter-list"><span class="filter-empty">タグを読み込み中…</span></div></details>
+      <section id="tagResults" class="tag-results" aria-live="polite" hidden><h2 id="tagResultTitle"></h2><div id="tagResultList" class="tag-result-list"></div></section>
     </section>
-
     <section id="checklistSection" class="checklist-section" aria-label="見たい演目のチェックリスト">
-      <div class="checklist-heading">
-        <h2>見たい演目</h2>
-        <span id="checklistCount" class="checklist-count">0件</span>
-        <button id="notificationButton" class="notification-button" type="button">開始15分前の通知を許可</button>
-      </div>
-      <p class="checklist-note">タイムテーブルの「＋」で登録できます。通知はこのページを開いている間に、開始15分前になると表示されます。</p>
+      <div class="checklist-heading"><h2>見たい演目</h2><span id="checklistCount" class="checklist-count">0件</span><button id="notificationButton" class="notification-button" type="button">開始15分前の通知を許可</button><button id="notificationTestButton" class="notification-button" type="button">通知テスト</button></div>
+      <p class="checklist-note">タイムテーブルの「＋」で登録できます。通知は開始15分前と5分前に表示されます。</p>
       <div id="checklistList" class="checklist-list"></div>
     </section>
-
-    <section class="map-shell" aria-label="会場マップ">
-      <div id="map" class="leaflet-map"></div>
-      <details class="map-settings">
-        <summary>⚙ 地図の表示設定</summary>
-        <div class="map-options" aria-label="地図の表示設定">
-          <label><input type="checkbox" id="showBaseMap" checked /> 背景地図（道路・建物・Pなど）</label>
-          <label><input type="checkbox" id="showMajorRoads" /> 幹線道路</label>
-          <label><input type="checkbox" id="showOtherRoads" /> その他の道路</label>
-          <label><input type="checkbox" id="showVenuePins" checked /> 会場ピン</label>
-          <label><input type="checkbox" id="showVenueLabels" checked /> 会場名</label>
-        </div>
-      </details>
-      <div class="map-note">地図の表示設定から表示項目を切り替えられます。地図データはOpenStreetMapを利用しています。</div>
-    </section>
-
-    <section>
-      <div class="section-heading">
-        <h2>会場一覧</h2>
-        <span id="venueCount"></span>
-      </div>
-      <div id="venueList" class="venue-list"></div>
-    </section>
+    <section class="map-shell" aria-label="会場マップ"><div id="map" class="leaflet-map"></div><details class="map-settings"><summary>⚙ 地図の表示設定</summary><div class="map-options" aria-label="地図の表示設定"><label><input type="checkbox" id="showBaseMap" checked /> 背景地図（道路・建物・Pなど）</label><label><input type="checkbox" id="showMajorRoads" /> 幹線道路</label><label><input type="checkbox" id="showOtherRoads" /> その他の道路</label><label><input type="checkbox" id="showVenuePins" checked /> 会場ピン</label><label><input type="checkbox" id="showVenueLabels" checked /> 会場名</label></div></details><div class="map-note">地図の表示設定から表示項目を切り替えられます。地図データはOpenStreetMapを利用しています。</div></section>
+    <section><div class="section-heading"><h2>会場一覧</h2><span id="venueCount"></span></div><div id="venueList" class="venue-list"></div></section>
   </main>
-
-  <dialog id="venueDialog" class="venue-dialog">
-    <form method="dialog" class="dialog-card">
-      <button class="dialog-close" value="cancel" aria-label="閉じる">×</button>
-      <div id="dialogBody"></div>
-    </form>
-  </dialog>
-
-  <footer>
-    <p>地図データ © OpenStreetMap contributors。掲載情報は公式発表をもとにした非公式アプリです。</p>
-    <p><a href="https://www.imaike55.com/" target="_blank" rel="noopener">公式サイト</a></p>
-  </footer>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js?v=20260919-1"></script>
-  <script src="map-points.js?v=20260918-1"></script>
-  <script src="tag-filter.js?v=20260919-4"></script>
-  <script src="notification-test.js?v=20260919-1"></script>
+  <dialog id="venueDialog" class="venue-dialog"><form method="dialog" class="dialog-card"><button class="dialog-close" value="cancel" aria-label="閉じる">×</button><div id="dialogBody"></div></form></dialog>
+  <footer><p>地図データ © OpenStreetMap contributors。掲載情報は公式発表をもとにした非公式アプリです。</p><p><a href="https://www.imaike55.com/" target="_blank" rel="noopener">公式サイト</a></p></footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script><script src="app.js?v=20260919-1"></script><script src="map-points.js?v=20260918-1"></script><script src="tag-filter.js?v=20260919-4"></script><script src="notification-test.js?v=20260919-2"></script>
 </body>
 </html>
