@@ -11,8 +11,8 @@
   let activeFilter = { type: '', value: '' };
 
   function escape(value) {
-    return String(value ?? '').replace(/[&<>"']/g, c => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    return String(value ?? '').replace(/[&<>\"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;'
     }[c]));
   }
 
@@ -72,6 +72,23 @@
     });
   }
 
+  function focusEventCard(item) {
+    window.setTimeout(() => {
+      const cards = [...dialogBody.querySelectorAll('.schedule-item')];
+      const target = cards.find(card => {
+        const title = card.querySelector('.schedule-title')?.textContent?.trim();
+        const time = card.querySelector('.schedule-time time')?.textContent?.trim();
+        return title === String(item.title ?? '').trim()
+          && time === formatTime(item.start_time);
+      });
+
+      if (!target) return;
+      cards.forEach(card => card.classList.remove('is-target-event'));
+      target.classList.add('is-target-event');
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 180);
+  }
+
   function renderResults() {
     if (!activeFilter.type || !activeFilter.value) {
       tagResults.hidden = true;
@@ -104,6 +121,7 @@
         if (!venue) return;
         map.setView([venue.lat, venue.lng], 17);
         showVenue(venue);
+        focusEventCard(item);
       });
     });
     tagResults.hidden = false;
