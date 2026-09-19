@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="styles.css?v=20260919-1" />
   <link rel="stylesheet" href="map.css" />
   <link rel="stylesheet" href="tag-filter.css?v=20260919-4" />
-  <link rel="stylesheet" href="schedule-status.css?v=20260919-1" />
+  <link rel="stylesheet" href="schedule-features.css?v=20260919-1" />
   <title>今池まつり Compass</title>
 </head>
 <body>
@@ -53,6 +53,16 @@
       </section>
     </section>
 
+    <section id="checklistSection" class="checklist-section" aria-label="見たい演目のチェックリスト">
+      <div class="checklist-heading">
+        <h2>見たい演目</h2>
+        <span id="checklistCount" class="checklist-count">0件</span>
+        <button id="notificationButton" class="notification-button" type="button">開始15分前の通知を許可</button>
+      </div>
+      <p class="checklist-note">タイムテーブルの「＋」で登録できます。通知はこのページを開いている間に、開始15分前になると表示されます。</p>
+      <div id="checklistList" class="checklist-list"></div>
+    </section>
+
     <section class="map-shell" aria-label="会場マップ">
       <div id="map" class="leaflet-map"></div>
       <details class="map-settings">
@@ -90,9 +100,8 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js?v=20260918-7"></script>
+  <script src="app.js?v=20260919-1"></script>
   <script src="map-points.js?v=20260918-1"></script>
   <script src="tag-filter.js?v=20260919-3"></script>
-  <script src="schedule-status.js?v=20260919-1"></script>
 </body>
 </html>
