@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="styles.css?v=20260919-1" />
   <link rel="stylesheet" href="map.css" />
-  <link rel="stylesheet" href="tag-filter.css" />
+  <link rel="stylesheet" href="tag-filter.css?v=20260919-2" />
   <title>今池まつり Compass</title>
 </head>
 <body>
@@ -35,10 +35,17 @@
         <span aria-hidden="true">⌕</span>
         <input id="searchInput" type="search" placeholder="会場名・出演者・ジャンル・タグで検索" autocomplete="off" />
       </label>
-      <section id="tagPanel" class="tag-panel" aria-label="タグで絞り込み">
-        <h2 class="tag-panel-title">タグから探す</h2>
-        <div id="tagList" class="tag-list"><span class="tag-empty">タグを読み込み中…</span></div>
-      </section>
+
+      <details id="genrePanel" class="filter-panel" open>
+        <summary>ジャンルから探す</summary>
+        <div id="genreList" class="filter-list"><span class="filter-empty">ジャンルを読み込み中…</span></div>
+      </details>
+
+      <details id="tagPanel" class="filter-panel" open>
+        <summary>タグから探す</summary>
+        <div id="tagList" class="filter-list"><span class="filter-empty">タグを読み込み中…</span></div>
+      </details>
+
       <section id="tagResults" class="tag-results" aria-live="polite" hidden>
         <h2 id="tagResultTitle"></h2>
         <div id="tagResultList" class="tag-result-list"></div>
@@ -84,6 +91,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="app.js?v=20260918-7"></script>
   <script src="map-points.js?v=20260918-1"></script>
-  <script src="tag-filter.js?v=20260918-1"></script>
+  <script src="tag-filter.js?v=20260919-2"></script>
 </body>
 </html>
