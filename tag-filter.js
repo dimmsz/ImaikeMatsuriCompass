@@ -1,12 +1,14 @@
 (() => {
+  const genrePanel = document.getElementById('genrePanel');
+  const genreList = document.getElementById('genreList');
   const tagPanel = document.getElementById('tagPanel');
   const tagList = document.getElementById('tagList');
   const tagResults = document.getElementById('tagResults');
   const tagResultTitle = document.getElementById('tagResultTitle');
   const tagResultList = document.getElementById('tagResultList');
-  if (!tagPanel || !tagList || !tagResults || !tagResultTitle || !tagResultList) return;
+  if (!genrePanel || !genreList || !tagPanel || !tagList || !tagResults || !tagResultTitle || !tagResultList) return;
 
-  let activeTag = '';
+  let activeFilter = { type: '', value: '' };
 
   function escape(value) {
     return String(value ?? '').replace(/[&<>"']/g, c => ({
@@ -28,48 +30,72 @@
     return venue ? `${venue.venueNo}. ${venue.name}` : '会場未設定';
   }
 
+  function getGenres() {
+    const values = schedules.map(item => item.genre).filter(Boolean);
+    return [...new Set(values)].sort((a, b) => a.localeCompare(b, 'ja'));
+  }
+
   function getTags() {
     const values = schedules.flatMap(item => Array.isArray(item.tags) ? item.tags : []);
     return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ja'));
   }
 
-  function renderTags() {
-    const tags = getTags();
-    tagList.innerHTML = tags.length
-      ? tags.map(tag => `<button type="button" class="filter-tag${tag === activeTag ? ' is-active' : ''}" data-tag="${escape(tag)}">#${escape(tag)}</button>`).join('')
-      : '<span class="tag-empty">タグはありません。</span>';
+  function filterButton(type, value, label, className) {
+    const active = activeFilter.type === type && activeFilter.value === value;
+    return `<button type="button" class="filter-chip ${className}${active ? ' is-active' : ''}" data-filter-type="${type}" data-filter-value="${escape(value)}">${escape(label)}</button>`;
+  }
 
-    tagList.querySelectorAll('[data-tag]').forEach(button => {
+  function renderFilters() {
+    const genres = getGenres();
+    const tags = getTags();
+
+    genreList.innerHTML = genres.length
+      ? genres.map(genre => filterButton('genre', genre, genre, 'genre-filter-chip')).join('')
+      : '<span class="filter-empty">ジャンルはありません。</span>';
+
+    tagList.innerHTML = tags.length
+      ? tags.map(tag => filterButton('tag', tag, `#${tag}`, 'tag-filter-chip')).join('')
+      : '<span class="filter-empty">タグはありません。</span>';
+
+    document.querySelectorAll('[data-filter-type]').forEach(button => {
       button.addEventListener('click', () => {
-        const tag = button.dataset.tag || '';
-        activeTag = activeTag === tag ? '' : tag;
-        renderTags();
+        const type = button.dataset.filterType || '';
+        const value = button.dataset.filterValue || '';
+        if (activeFilter.type === type && activeFilter.value === value) {
+          activeFilter = { type: '', value: '' };
+        } else {
+          activeFilter = { type, value };
+        }
+        renderFilters();
         renderResults();
       });
     });
   }
 
   function renderResults() {
-    if (!activeTag) {
+    if (!activeFilter.type || !activeFilter.value) {
       tagResults.hidden = true;
       tagResultList.innerHTML = '';
       return;
     }
 
     const matches = schedules
-      .filter(item => Array.isArray(item.tags) && item.tags.includes(activeTag))
+      .filter(item => activeFilter.type === 'genre'
+        ? item.genre === activeFilter.value
+        : Array.isArray(item.tags) && item.tags.includes(activeFilter.value))
       .sort((a, b) => String(a.event_date).localeCompare(String(b.event_date))
         || String(a.start_time).localeCompare(String(b.start_time))
         || Number(a.sort_order || 0) - Number(b.sort_order || 0));
 
-    tagResultTitle.textContent = `#${activeTag} のイベント（${matches.length}件）`;
+    const prefix = activeFilter.type === 'tag' ? '#' : '';
+    tagResultTitle.textContent = `${prefix}${activeFilter.value} のイベント（${matches.length}件）`;
     tagResultList.innerHTML = matches.length
       ? matches.map((item, index) => `<button type="button" class="tag-event-card" data-event-index="${index}">
           <span class="tag-event-date">${escape(formatDate(item.event_date))} ${escape(formatTime(item.start_time))}</span>
           <strong>${escape(item.title)}</strong>
           <span class="tag-event-venue">📍 ${escape(venueName(item.venue_id))}</span>
         </button>`).join('')
-      : '<p class="tag-empty">該当するイベントはありません。</p>';
+      : '<p class="filter-empty">該当するイベントはありません。</p>';
 
     tagResultList.querySelectorAll('[data-event-index]').forEach(button => {
       button.addEventListener('click', () => {
@@ -88,7 +114,7 @@
       window.setTimeout(initialize, 150);
       return;
     }
-    renderTags();
+    renderFilters();
   }
 
   initialize();
