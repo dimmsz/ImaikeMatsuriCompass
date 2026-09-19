@@ -22,8 +22,13 @@
   };
   const saveIds = (key, values) => localStorage.setItem(key, JSON.stringify([...values]));
   const notify = (title, message, tag) => {
-    if ('Notification' in window && Notification.permission === 'granted') new Notification(title, { body: message, tag });
-    else alert(message);
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, {
+        body: message,
+        tag,
+        vibrate: [300, 150, 300, 150, 600]
+      });
+    } else alert(message);
   };
 
   const removeTest = () => {
