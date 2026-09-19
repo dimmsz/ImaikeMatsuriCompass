@@ -10,6 +10,29 @@
 
   let activeFilter = { type: '', value: '' };
 
+  const TAG_CATEGORIES = [
+    {
+      name: '音楽・楽器',
+      tags: ['DJ', 'ジャズ', 'ロック', 'ブルース', 'パンク', 'ソウル・R&B', 'ラテン', 'ワールド音楽', '合唱', '吹奏楽', '和楽器', '沖縄', '韓国', '打楽器', '三線', '三味線', '大正琴', 'ご当地ソング', 'ウクレレ', 'ゴスペル', 'ディスコ', 'ライブ', 'ブラジル']
+    },
+    {
+      name: 'ダンス・舞踊',
+      tags: ['フラメンコ', 'ダンススクール', 'バレエ', 'カポエイラ', 'サンバ']
+    },
+    {
+      name: '演芸・パフォーマンス',
+      tags: ['紙芝居', '演劇', '一人芝居', '詩朗読', 'マジック', '大道芸', 'クラウン', 'アクロバット', 'パフォーマンス', '落語', '伝統芸能']
+    },
+    {
+      name: 'スポーツ',
+      tags: ['プロレス', 'スポーツ', '空手', 'キック', '名古屋グランパス']
+    },
+    {
+      name: '地域・団体・テーマ',
+      tags: ['トーク', '地域交流', '商店街', '学生・学校', '社会人', '青少年', '能登', '結婚式']
+    }
+  ];
+
   function escape(value) {
     return String(value ?? '').replace(/[&<>\"']/g, c => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;'
@@ -48,13 +71,26 @@
   function renderFilters() {
     const genres = getGenres();
     const tags = getTags();
+    const categorizedTags = new Set();
 
     genreList.innerHTML = genres.length
       ? genres.map(genre => filterButton('genre', genre, genre, 'genre-filter-chip')).join('')
       : '<span class="filter-empty">ジャンルはありません。</span>';
 
+    const categoryHtml = TAG_CATEGORIES.map(category => {
+      const categoryTags = tags.filter(tag => category.tags.includes(tag));
+      categoryTags.forEach(tag => categorizedTags.add(tag));
+      if (!categoryTags.length) return '';
+      return `<details class="tag-category"><summary>${escape(category.name)} <span class="tag-category-count">${categoryTags.length}種類</span></summary><div class="filter-list tag-category-list">${categoryTags.map(tag => filterButton('tag', tag, `#${tag}`, 'tag-filter-chip')).join('')}</div></details>`;
+    }).join('');
+
+    const uncategorizedTags = tags.filter(tag => !categorizedTags.has(tag));
+    const otherHtml = uncategorizedTags.length
+      ? `<details class="tag-category"><summary>その他 <span class="tag-category-count">${uncategorizedTags.length}種類</span></summary><div class="filter-list tag-category-list">${uncategorizedTags.map(tag => filterButton('tag', tag, `#${tag}`, 'tag-filter-chip')).join('')}</div></details>`
+      : '';
+
     tagList.innerHTML = tags.length
-      ? tags.map(tag => filterButton('tag', tag, `#${tag}`, 'tag-filter-chip')).join('')
+      ? `${categoryHtml}${otherHtml}`
       : '<span class="filter-empty">タグはありません。</span>';
 
     document.querySelectorAll('[data-filter-type]').forEach(button => {
