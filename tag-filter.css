@@ -99,6 +99,13 @@
 .tag-event-venue { color: var(--muted); font-size: 12px; }
 .filter-empty { color: var(--muted); font-size: 13px; }
 
+.schedule-item.is-target-event {
+  background: #fff3c4;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22);
+  scroll-margin-block: 24px;
+}
+
 @media (max-width: 600px) {
   .filter-panel summary { padding: 11px 12px; }
   .filter-panel summary::after { content: '開閉'; }
