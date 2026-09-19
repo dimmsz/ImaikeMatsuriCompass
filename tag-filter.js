@@ -34,8 +34,8 @@
   ];
 
   function escape(value) {
-    return String(value ?? '').replace(/[&<>\"']/g, c => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;'
+    return String(value ?? '').replace(/[&<>\\"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '\\"': '&quot;', "'": '&#39;'
     }[c]));
   }
 
@@ -157,7 +157,11 @@
         if (!venue) return;
         map.setView([venue.lat, venue.lng], 17);
         showVenue(venue);
-        focusEventCard(item);
+        window.setTimeout(() => {
+          const dateTab = dialogBody.querySelector(`[data-date="${item.event_date}"]`);
+          if (dateTab) dateTab.click();
+          focusEventCard(item);
+        }, 80);
       });
     });
     tagResults.hidden = false;
