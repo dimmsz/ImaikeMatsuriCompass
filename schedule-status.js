@@ -10,6 +10,15 @@
     return `${new Date().getFullYear()}-${String(match[1]).padStart(2, '0')}-${String(match[2]).padStart(2, '0')}`;
   }
 
+  function todayInTokyo() {
+    return new Intl.DateTimeFormat('sv-SE', {
+      timeZone: TOKYO_TIME_ZONE,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(new Date());
+  }
+
   function toDate(dateText, timeText) {
     if (!dateText || !timeText) return null;
     const match = String(timeText).match(/^(\d{1,2}):(\d{2})$/);
@@ -19,6 +28,7 @@
 
   function applyStatuses() {
     const now = new Date();
+    const today = todayInTokyo();
     dialogBody.querySelectorAll('.schedule-day').forEach(day => {
       const dateText = parseJapaneseDate(day.querySelector('.schedule-date h3')?.textContent);
       if (!dateText) return;
@@ -37,7 +47,9 @@
         const end = explicitEnd || nextStart;
 
         entry.card.classList.remove('is-ended', 'is-current', 'is-upcoming');
-        if (!start || now < start) {
+        if (dateText < today) {
+          entry.card.classList.add('is-ended');
+        } else if (!start || now < start) {
           entry.card.classList.add('is-upcoming');
         } else if (end && now >= end) {
           entry.card.classList.add('is-ended');
