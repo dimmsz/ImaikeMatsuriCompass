@@ -46,15 +46,15 @@
         const nextStart = entries[index + 1] ? toDate(dateText, entries[index + 1].startText) : null;
         const end = explicitEnd || nextStart;
 
-        entry.card.classList.remove('is-ended', 'is-current', 'is-upcoming');
+        entry.card.classList.remove('is-ended', 'is-current', 'is-upcoming', 'status-ended', 'status-current', 'status-upcoming');
         if (dateText < today) {
-          entry.card.classList.add('is-ended');
+          entry.card.classList.add('is-ended', 'status-ended');
         } else if (!start || now < start) {
-          entry.card.classList.add('is-upcoming');
+          entry.card.classList.add('is-upcoming', 'status-upcoming');
         } else if (end && now >= end) {
-          entry.card.classList.add('is-ended');
+          entry.card.classList.add('is-ended', 'status-ended');
         } else {
-          entry.card.classList.add('is-current');
+          entry.card.classList.add('is-current', 'status-current');
         }
       });
     });
