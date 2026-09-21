@@ -27,8 +27,8 @@
     const currentIndex = orderedVenues.findIndex(venue => Number(venue.id) === currentId);
     if (currentIndex < 0 || !orderedVenues.length) return;
 
-    const nextIndex = dx < 0 ? currentIndex + 1 : currentIndex - 1;
-    if (nextIndex < 0 || nextIndex >= orderedVenues.length) return;
+    const direction = dx < 0 ? 1 : -1;
+    const nextIndex = (currentIndex + direction + orderedVenues.length) % orderedVenues.length;
 
     showVenue(orderedVenues[nextIndex]);
   }, { passive: true });
