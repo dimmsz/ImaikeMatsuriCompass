@@ -7,7 +7,7 @@
   <meta name="description" content="2026 今池まつりの会場を探せる非公式コンパス" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="stylesheet" href="styles.css?v=20260919-1" />
+  <link rel="stylesheet" href="styles.css?v=20260922-1" />
   <link rel="stylesheet" href="map.css" />
   <link rel="stylesheet" href="tag-filter.css?v=20260919-4" />
   <link rel="stylesheet" href="schedule-features.css?v=20260919-1" />
@@ -17,6 +17,10 @@
   <header class="topbar"><div><div class="eyebrow">2026 今池まつり</div><h1>Compass</h1></div><button id="locateButton" class="icon-button" type="button" title="現在地を表示" aria-label="現在地を表示">⌖</button></header>
   <main>
     <section class="hero-card"><div><div class="hero-title">今池の会場を、すぐ見つける。</div><p>2026年9月20日(日)・21日(月・祝)</p></div><span class="badge">非公式</span></section>
+    <section class="event-ended-notice" role="status" aria-live="polite">
+      <strong>今池まつりは終了しました</strong>
+      <p>2026年9月20日・21日の開催は終了しました。ご利用ありがとうございました。</p>
+    </section>
     <section class="controls" aria-label="会場・出演者・ジャンル検索">
       <label class="search-box"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="会場名・出演者・ジャンル・タグで検索" autocomplete="off" /></label>
       <details id="genrePanel" class="filter-panel" open><summary>ジャンルから探す</summary><div id="genreList" class="filter-list"><span class="filter-empty">ジャンルを読み込み中…</span></div></details>
